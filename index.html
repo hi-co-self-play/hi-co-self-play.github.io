@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mastering Multi-Drone Volleyball through Hierarchical Co-Self-Play</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+
+  <!-- Global Project Navigation (visible at top, hides on scroll) -->
+  <nav class="nav-global" id="navGlobal">
+    <div class="nav-global-content">
+      <div class="nav-global-links">
+        <a href="https://sites.google.com/view/thu-volleybots" target="_blank">VolleyBots</a>
+        <a href="#" class="active" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">HCSP</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sticky Navigation Bar (appears on scroll, replaces global nav) -->
+  <nav class="nav-sticky-bar" id="navStickyBar">
+    <div class="nav-sticky-content">
+      <div class="nav-title-wrapper" id="navTitleWrapper">
+        <a class="nav-sticky-title" href="#" onclick="return false;">
+          HCSP
+          <i class="fas fa-chevron-down nav-title-chevron"></i>
+        </a>
+        <div class="nav-dropdown">
+          <div class="nav-dropdown-header">Explore Projects</div>
+          <a class="nav-project-card" href="https://sites.google.com/view/thu-volleybots" target="_blank">
+            <div class="nav-project-card-title">VolleyBots</div>
+            <div class="nav-project-card-desc">A Testbed for Multi-Drone Volleyball Game Combining Motion Control and Strategic Play</div>
+          </a>
+          <a class="nav-project-card" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">
+            <div class="nav-project-card-title active-project">HCSP</div>
+            <div class="nav-project-card-desc">Mastering Multi-Drone Volleyball through Hierarchical Co-Self-Play Reinforcement Learning</div>
+          </a>
+        </div>
+      </div><!-- /.nav-title-wrapper -->
+      <div class="nav-sticky-links" id="navStickyLinks">
+        <a href="#abstract">Abstract</a>
+        <a href="#framework">Framework</a>
+        <a href="#training">Training</a>
+        <a href="#experiments">Experiments</a>
+        <a href="#videos">Videos</a>
+        <a href="#bibtex">BibTeX</a>
+      </div>
+      <button class="nav-mobile-toggle" id="navMobileToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header id="page-header">
+    <div class="container header-content">
+      <div class="venue-badge">CoRL 2025</div>
+      <h1>Mastering Multi-Drone Volleyball through<br>Hierarchical Co-Self-Play Reinforcement Learning</h1>
+
+      <div class="authors">
+        <p>
+          Ruize Zhang,
+          Sirui Xiang,
+          Zelai Xu,
+          Feng Gao,
+          Shilong Ji,
+          Wenhao Tang,<br>
+          Wenbo Ding,
+          Chao Yu<sup>†</sup>,
+          Yu Wang<sup>†</sup>
+        </p>
+        <p class="affiliations">Tsinghua University</p>
+        <p style="font-size: 0.9rem; color: #888;">
+          <sup>†</sup>Corresponding authors.
+        </p>
+      </div>
+
+      <div class="links">
+        <a href="https://arxiv.org/abs/2505.04317" target="_blank" class="btn">
+          <i class="ai ai-arxiv"></i> arXiv
+        </a>
+        <a href="https://github.com/thu-uav/HCSP" target="_blank" class="btn">
+          <i class="fab fa-github"></i> Code
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <!-- Abstract -->
+      <section id="abstract">
+        <h2>Abstract</h2>
+        <p>
+          In this paper, we tackle the problem of learning to play 3v3 multi-drone volleyball, a new embodied competitive task that requires both high-level strategic coordination and low-level agile control. The task is turn-based, multi-agent, and physically grounded, posing significant challenges due to its long-horizon dependencies, tight inter-agent coupling, and the underactuated dynamics of quadrotors.
+        </p>
+        <p>
+          To address this, we propose <strong>Hierarchical Co-Self-Play (HCSP)</strong>, a hierarchical reinforcement learning framework that separates centralized high-level strategic decision-making from decentralized low-level motion control. We design a three-stage population-based training pipeline to enable both strategy and skill to emerge from scratch without expert demonstrations: <strong>(I)</strong> training diverse low-level skills, <strong>(II)</strong> learning high-level strategy via self-play with fixed low-level skills, and <strong>(III)</strong> joint fine-tuning through co-self-play.
+        </p>
+        <p>
+          Experiments show that HCSP achieves superior performance, outperforming non-hierarchical self-play and rule-based hierarchical baselines with an average <strong>82.9% win rate</strong> and a <strong>71.5% win rate</strong> against the two-stage variant. Moreover, co-self-play leads to emergent team behaviors such as role switching and coordinated formations, demonstrating the effectiveness of our hierarchical design and training scheme.
+        </p>
+      </section>
+
+      <!-- Framework -->
+      <section id="framework">
+        <h2>Framework Overview</h2>
+
+        <h3>3v3 Multi-Drone Volleyball Task</h3>
+        <p>
+          Our work aims to tackle the <strong>3v3 Multi-Drone Volleyball Task</strong> proposed in <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a> played on a 12m × 6m court with a 2.43m net. Each team controls three quadrotors and must cooperate to return the ball to the opponent's court while following standard volleyball turn-based rules. The task simultaneously demands <em>precise motion control</em> for individual drones and <em>coordinated team strategy</em> for multi-agent decision-making—making it a uniquely challenging benchmark for embodied multi-agent reinforcement learning.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig1.png" alt="VolleyBots 3v3 drone volleyball task overview" style="max-width: 80%;">
+          <p class="caption">Figure 1. The <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a> 3v3 competitive task. Three quadrotors per team compete on a 12m × 6m court with a 2.43m net. Green arrows indicate ball trajectories; blue arrows indicate drone trajectories.</p>
+        </div>
+
+        <h3>Hierarchical Co-Self-Play (HCSP) Architecture</h3>
+        <p>
+          HCSP separates decision-making into two levels: a <strong>centralized high-level strategy</strong> that determines which skill each drone should execute, and a <strong>decentralized low-level skill pool</strong> that executes the assigned motion primitives. The high-level strategy is triggered by game events (e.g., ball contact) and selects from a pool of pre-trained low-level skills, providing tactical observations as guidance. This hierarchical structure allows the system to jointly optimize both strategic planning and agile flight control.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig2.png" alt="HCSP hierarchical framework architecture">
+          <p class="caption">Figure 2. The HCSP architecture. An event-based trigger activates the high-level strategy (MLP with multi-head output) which selects skills from the low-level skill pool for each drone. Low-level skills (Serve, Receive, Hover, GoTo, Pass, Set, Attack) execute the assigned primitives and send actions to the drones.</p>
+        </div>
+      </section>
+
+      <!-- Training Pipeline -->
+      <section id="training">
+        <h2>Three-Stage Training Pipeline</h2>
+        <p>
+          HCSP learns entirely from self-play without any expert demonstrations. The training unfolds across three carefully designed stages, each building upon the previous to produce increasingly sophisticated team behaviors.
+        </p>
+
+        <div class="stage-grid">
+          <div class="stage-card">
+            <h4>Stage I: Low-Level Skill Acquisition</h4>
+            <p>Train a diverse pool of low-level motion primitives using policy chaining, enabling smooth transitions between temporally adjacent skills.</p>
+          </div>
+          <div class="stage-card">
+            <h4>Stage II: High-Level Strategy Pretraining</h4>
+            <p>Fix the low-level skill pool and learn high-level team strategy through population-based self-play, acquiring initial cooperative and competitive tactics.</p>
+          </div>
+          <div class="stage-card">
+            <h4>Stage III: Co-Self-Play</h4>
+            <p>Jointly fine-tune both high-level strategy and low-level skills through co-self-play, enabling mutual improvement and emergent team behaviors.</p>
+          </div>
+        </div>
+
+        <h3>Stage I: Low-Level Skill Acquisition</h3>
+        <p>
+          We train seven low-level skills using policy chaining, where a new skill policy is initialized from a relevant predecessor skill to facilitate smooth behavioral transitions. Each skill focuses on controlling individual drones to execute specific motion primitives without tactical reasoning. The table below describes each skill and the tactical observations provided by the high-level strategy.
+        </p>
+        <div class="figure-container">
+          <img src="figs/table1.png" alt="Low-level skill descriptions">
+          <p class="caption">Table 1. Description of seven low-level skills acquired in Stage I and the corresponding tactical observations provided by the high-level strategy.</p>
+        </div>
+        <p>
+          Policy chaining significantly improves sample efficiency compared to training skills from scratch (single-policy). As shown below, policy chaining achieves faster convergence and higher asymptotic reward in representative skills.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig9.png" alt="Training curves for policy chaining vs single-policy">
+          <p class="caption">Figure 3. Training curves for the Attack and Hover skills. Policy chaining (orange) converges faster and achieves higher rewards than the single-policy baseline (blue).</p>
+        </div>
+
+        <h3>Stage II: High-Level Strategy Pretraining</h3>
+        <p>
+          With the low-level skill pool frozen, we pretrain the high-level strategy through population-based team-level self-play. Each team is modeled as a centralized high-level agent selecting skills for all three drones. We maintain a population of strategy policies and use Nash Equilibrium (NE)-based sampling to construct diverse matchups, enabling the strategy to acquire robust cooperative and competitive tactics.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig3.png" alt="Population-based training framework for Stage II and III">
+          <p class="caption">Figure 4. Population-based training framework. Teams are sampled via NE-based strategies, and a win rate heatmap is computed for policy population evaluation.</p>
+        </div>
+        <p>
+          Since the high-level strategy is event-driven, its action steps are temporally sparse. To address the training inefficiency caused by sparse event-driven transitions, we apply <strong>sample reallocation</strong>: transitions are collected across multiple environments but only event-driven timesteps are extracted and batched for training, significantly improving data efficiency.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig4.png" alt="Sample reallocation for event-driven RL">
+          <p class="caption">Figure 5. Sample reallocation for high-level strategy training. Event-driven transitions (orange) are collected across environments and repackaged into full training batches.</p>
+        </div>
+
+        <h3>Stage III: Co-Self-Play</h3>
+        <p>
+          In Stage III, we co-optimize both the high-level strategy and low-level skills through co-self-play. New low-level skill policies are introduced into the skill pool and jointly trained with the high-level strategy. High-level strategies can motivate low-level skill development, and improvements in low-level skills in turn inform better high-level decision-making—creating a virtuous cycle of mutual improvement that leads to emergent team behaviors.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig5.png" alt="Co-self-play Stage III illustration">
+          <p class="caption">Figure 6. Illustration of the co-self-play stage (Stage III). New low-level policies are introduced to augment the skill pool, while a new high-level strategy is trained from scratch alongside the evolving skill pool.</p>
+        </div>
+      </section>
+
+      <!-- Experiments -->
+      <section id="experiments">
+        <h2>Experiments</h2>
+
+        <h3>Game Results Against Baselines</h3>
+        <p>
+          We evaluate HCSP against five baselines: Self-Play (SP), Fictitious Self-Play (FSP), PSRO<sub>Uniform</sub>, PSRO<sub>Nash</sub>, and a rule-based Bot. HCSP achieves an average win rate of <strong>82.9%</strong>, outperforming all baselines across all matchup types.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig6.png" alt="HCSP win rates against baselines">
+          <p class="caption">Figure 7. HCSP win rate against each baseline and the average win rate. The dashed line indicates the 50% (random) threshold.</p>
+        </div>
+
+        <h3>Quantitative Analysis of Stage III Co-Self-Play</h3>
+        <p>
+          To evaluate the effectiveness of Stage III, we conduct head-to-head tournaments between Stage II and Stage III policies. The Stage III policy achieves a <strong>71.5% win rate</strong> over the Stage II policy, demonstrating clear improvement from co-self-play. To assess absolute robustness, we also use a Nash-averaging evaluator: the Stage III policy improves its Nash-averaged win rate from 31.4% (Stage II) to <strong>47.6%</strong>, a 16.2% absolute gain.
+        </p>
+        <div class="figure-container">
+          <img src="figs/table2.png" alt="Stage II vs Stage III win rate comparison">
+          <p class="caption">Table 2. Head-to-head and Nash-averaged win rates of Stage II and Stage III policies (mean ± std).</p>
+        </div>
+        <div class="figures-row">
+          <div class="figure-container">
+            <img src="figs/fig10.png" alt="Win rate matrices comparing Stage II and Stage III policies">
+            <p class="caption">Figure 8. Win rate matrices for Stage II policies (left) and Stage III policies (right), showing consistent improvement in Stage III.</p>
+          </div>
+          <div class="figure-container">
+            <img src="figs/fig7.png" alt="Win rate matrix among all candidate policies">
+            <p class="caption">Figure 9. Win rate matrix among all candidate policies (A–J) from the full tournament, visualized as a heatmap.</p>
+          </div>
+        </div>
+
+        <h3>Emergent Low-Level Skills</h3>
+        <p>
+          Beyond quantitative gains, Stage III co-self-play leads to qualitatively richer behaviors. Low-level skills evolve to execute more complex and coordinated motion primitives, such as front-flip hits and dynamic role switching, which were not present in the Stage II policy. The figure below shows simulation frames of representative emergent behaviors discovered through co-self-play.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig8.png" alt="Simulation frames showing emergent behaviors">
+          <p class="caption">Figure 10. Simulation frames (a)–(f) showing representative emergent low-level behaviors discovered through co-self-play, including dynamic positional adjustments and complex attack trajectories.</p>
+        </div>
+      </section>
+
+      <!-- Videos -->
+      <section id="videos">
+        <h2>Videos</h2>
+        <p>
+          The following videos demonstrate HCSP in action, including a spotlight overview, real-world deployment, and individual low-level skill demonstrations. Click any thumbnail to watch on YouTube.
+        </p>
+
+        <h3>Spotlight</h3>
+        <!-- TODO: Replace VIDEO_ID_SPOTLIGHT with the actual YouTube video ID -->
+        <div class="video-grid video-grid-1">
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_SPOTLIGHT" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_SPOTLIGHT/hqdefault.jpg" alt="HCSP Spotlight Video">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">HCSP — Spotlight Demo</p>
+          </div>
+        </div>
+
+        <h3>Real-World Demonstrations</h3>
+        <!-- TODO: Replace VIDEO_ID_REALWORLD_1 and VIDEO_ID_REALWORLD_2 with actual YouTube video IDs -->
+        <div class="video-grid video-grid-2">
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_REALWORLD_1" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_REALWORLD_1/hqdefault.jpg" alt="Real-world Solo Bump">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Real-world: Solo Bump</p>
+          </div>
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_REALWORLD_2" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_REALWORLD_2/hqdefault.jpg" alt="Real-world Serve">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Real-world: Serve</p>
+          </div>
+        </div>
+
+        <h3>Simulation Skill Demonstrations</h3>
+        <!-- TODO: Replace VIDEO_ID_SIM_* with actual YouTube video IDs -->
+        <div class="video-grid video-grid-3">
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_SIM_SERVE" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_SERVE/hqdefault.jpg" alt="Simulation: Serve">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Serve</p>
+          </div>
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_SIM_RECEIVE" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_RECEIVE/hqdefault.jpg" alt="Simulation: Receive">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Receive</p>
+          </div>
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_SIM_SET" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_SET/hqdefault.jpg" alt="Simulation: Set">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Set</p>
+          </div>
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_SIM_PASS" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_PASS/hqdefault.jpg" alt="Simulation: Pass">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Pass</p>
+          </div>
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_SIM_ATTACK" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_ATTACK/hqdefault.jpg" alt="Simulation: Attack">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Attack</p>
+          </div>
+          <div class="video-item">
+            <a href="https://youtu.be/VIDEO_ID_SIM_FLIPATTACK" target="_blank" class="yt-link">
+              <div class="yt-thumbnail">
+                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_FLIPATTACK/hqdefault.jpg" alt="Simulation: Front Flip Hit">
+                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
+              </div>
+            </a>
+            <p class="video-caption">Front Flip Hit</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- BibTeX -->
+      <section id="bibtex">
+        <h2>BibTeX</h2>
+        <p>If you find our work useful, please cite our paper:</p>
+        <div class="citation-block">
+          <button class="copy-btn" id="copyBtn" onclick="copyBibtex()">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+          <pre id="bibtex-code">@inproceedings{zhang2025mastering,
+  title={Mastering Multi-Drone Volleyball through Hierarchical Co-Self-Play Reinforcement Learning},
+  author={Zhang, Ruize and Xiang, Sirui and Xu, Zelai and Gao, Feng and Ji, Shilong
+          and Tang, Wenhao and Ding, Wenbo and Yu, Chao and Wang, Yu},
+  booktitle={Proceedings of the Conference on Robot Learning (CoRL)},
+  year={2025}
+}</pre>
+        </div>
+      </section>
+
+    </div><!-- /.container -->
+  </main>
+
+  <footer>
+    <p>
+      © 2025 HCSP Project, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>.
+    </p>
+  </footer>
+
+  <!-- Scroll-to-Top Button -->
+  <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <script>
+    (function () {
+      var navGlobal   = document.getElementById('navGlobal');
+      var navBar      = document.getElementById('navStickyBar');
+      var pageHeader  = document.getElementById('page-header');
+      var scrollTopBtn = document.getElementById('scrollTop');
+      var navTitleWrapper = document.getElementById('navTitleWrapper');
+      var sectionIds  = ['abstract', 'framework', 'training', 'experiments', 'videos', 'bibtex'];
+
+      // ── Scroll: swap global nav ↔ sticky bar ──
+      function updateNav() {
+        var headerBottom = pageHeader ? pageHeader.offsetTop + pageHeader.offsetHeight : 300;
+        if (window.scrollY > headerBottom - 60) {
+          navBar.classList.add('visible');
+          navGlobal.classList.add('hidden');
+        } else {
+          navBar.classList.remove('visible');
+          navGlobal.classList.remove('hidden');
+        }
+
+        // Active section highlighting
+        var links = document.querySelectorAll('.nav-sticky-links a');
+        var current = '';
+        sectionIds.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el && window.scrollY >= el.offsetTop - 80) current = id;
+        });
+        links.forEach(function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+        });
+      }
+
+      window.addEventListener('scroll', updateNav, { passive: true });
+      window.addEventListener('scroll', function () {
+        scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
+      }, { passive: true });
+
+      scrollTopBtn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // ── Project dropdown toggle ──
+      navTitleWrapper.querySelector('.nav-sticky-title').addEventListener('click', function (e) {
+        e.preventDefault();
+        navTitleWrapper.classList.toggle('open');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function (e) {
+        if (!navTitleWrapper.contains(e.target)) {
+          navTitleWrapper.classList.remove('open');
+        }
+      });
+
+      // Close dropdown on scroll
+      window.addEventListener('scroll', function () {
+        navTitleWrapper.classList.remove('open');
+      }, { passive: true });
+
+      // ── Mobile Toggle ──
+      var mobileToggle    = document.getElementById('navMobileToggle');
+      var navStickyLinks  = document.getElementById('navStickyLinks');
+
+      mobileToggle.addEventListener('click', function () {
+        this.classList.toggle('active');
+        navStickyLinks.classList.toggle('mobile-open');
+      });
+
+      navStickyLinks.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          mobileToggle.classList.remove('active');
+          navStickyLinks.classList.remove('mobile-open');
+        });
+      });
+    })();
+
+    // ── Copy BibTeX ──
+    function copyBibtex() {
+      var text = document.getElementById('bibtex-code').innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        var btn = document.getElementById('copyBtn');
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(function () {
+          btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
