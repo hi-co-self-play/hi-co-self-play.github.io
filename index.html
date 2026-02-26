@@ -432,18 +432,22 @@
       var navTitleWrapper = document.getElementById('navTitleWrapper');
       var sectionIds  = ['abstract', 'task', 'method', 'experiments', 'videos', 'bibtex'];
 
-      // ── Scroll: swap global nav ↔ sticky bar ──
-      function updateNav() {
-        var pastHeader = pageHeader ? pageHeader.getBoundingClientRect().bottom < 60 : window.scrollY > 240;
-        if (pastHeader) {
-          navBar.classList.add('visible');
-          navGlobal.classList.add('hidden');
-        } else {
-          navBar.classList.remove('visible');
-          navGlobal.classList.remove('hidden');
-        }
+      // ── Sticky nav: IntersectionObserver watches when header leaves viewport ──
+      if (pageHeader && 'IntersectionObserver' in window) {
+        var headerObserver = new IntersectionObserver(function (entries) {
+          if (!entries[0].isIntersecting) {
+            navBar.classList.add('visible');
+            navGlobal.classList.add('hidden');
+          } else {
+            navBar.classList.remove('visible');
+            navGlobal.classList.remove('hidden');
+          }
+        }, { rootMargin: '-60px 0px 0px 0px', threshold: 0 });
+        headerObserver.observe(pageHeader);
+      }
 
-        // Active section highlighting
+      // ── Active section highlighting + scroll-to-top ──
+      window.addEventListener('scroll', function () {
         var links = document.querySelectorAll('.nav-sticky-links a');
         var current = '';
         sectionIds.forEach(function (id) {
@@ -453,10 +457,6 @@
         links.forEach(function (link) {
           link.classList.toggle('active', link.getAttribute('href') === '#' + current);
         });
-      }
-
-      window.addEventListener('scroll', updateNav, { passive: true });
-      window.addEventListener('scroll', function () {
         scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
       }, { passive: true });
 
