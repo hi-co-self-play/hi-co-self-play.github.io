@@ -253,7 +253,7 @@
           <p class="caption">Figure 8. Training curves for the Attack and Hover skills. Policy chaining (orange) converges faster and achieves higher rewards than the single-policy baseline (blue).</p>
         </div>
 
-        <h4>High-level Strategy Sample Reallocation in Stage II</h4>
+        <h4>High-Level Strategy Sample Reallocation in Stage II</h4>
         <p>
           Since the high-level strategy is event-driven, its action steps are temporally sparse. To address the training inefficiency caused by sparse event-driven transitions, we apply <strong>sample reallocation</strong>: transitions are collected across multiple environments but only event-driven timesteps are extracted and batched for training, significantly improving data efficiency. The figure below validates the effectiveness of this technique.
         </p>
