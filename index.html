@@ -22,6 +22,7 @@
       <div class="nav-global-links">
         <a href="https://sites.google.com/view/thu-volleybots" target="_blank">VolleyBots</a>
         <a href="#" class="active" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">HCSP</a>
+        <a href="https://arxiv.org/pdf/2509.24892" target="_blank">JuggleRL</a>
       </div>
     </div>
   </nav>
@@ -44,12 +45,16 @@
             <div class="nav-project-card-title active-project">HCSP</div>
             <div class="nav-project-card-desc">Mastering Multi-Drone Volleyball through Hierarchical Co-Self-Play Reinforcement Learning</div>
           </a>
+          <a class="nav-project-card" href="https://arxiv.org/pdf/2509.24892" target="_blank">
+            <div class="nav-project-card-title">JuggleRL</div>
+            <div class="nav-project-card-desc">Mastering Ball Juggling with a Quadrotor via Deep Reinforcement Learning</div>
+          </a>
         </div>
       </div><!-- /.nav-title-wrapper -->
       <div class="nav-sticky-links" id="navStickyLinks">
         <a href="#abstract">Abstract</a>
-        <a href="#framework">Framework</a>
-        <a href="#training">Training</a>
+        <a href="#task">Task</a>
+        <a href="#method">Method</a>
         <a href="#experiments">Experiments</a>
         <a href="#videos">Videos</a>
         <a href="#bibtex">BibTeX</a>
@@ -92,6 +97,11 @@
           <i class="fab fa-github"></i> Code
         </a>
       </div>
+      <div class="header-video">
+        <video controls autoplay muted loop playsinline style="max-width: 50%; border-radius: 8px; margin-top: 2.5rem;">
+          <source src="videos/stage2_HLS.mp4" type="video/mp4">
+        </video>
+      </div>
     </div>
   </header>
 
@@ -102,7 +112,7 @@
       <section id="abstract">
         <h2>Abstract</h2>
         <p>
-          In this paper, we tackle the problem of learning to play 3v3 multi-drone volleyball, a new embodied competitive task that requires both high-level strategic coordination and low-level agile control. The task is turn-based, multi-agent, and physically grounded, posing significant challenges due to its long-horizon dependencies, tight inter-agent coupling, and the underactuated dynamics of quadrotors.
+          We tackle the problem of learning to play 3v3 multi-drone volleyball, a new embodied competitive task that requires both high-level strategic coordination and low-level agile control. The task is turn-based, multi-agent, and physically grounded, posing significant challenges due to its long-horizon dependencies, tight inter-agent coupling, and the underactuated dynamics of quadrotors.
         </p>
         <p>
           To address this, we propose <strong>Hierarchical Co-Self-Play (HCSP)</strong>, a hierarchical reinforcement learning framework that separates centralized high-level strategic decision-making from decentralized low-level motion control. We design a three-stage population-based training pipeline to enable both strategy and skill to emerge from scratch without expert demonstrations: <strong>(I)</strong> training diverse low-level skills, <strong>(II)</strong> learning high-level strategy via self-play with fixed low-level skills, and <strong>(III)</strong> joint fine-tuning through co-self-play.
@@ -113,17 +123,21 @@
       </section>
 
       <!-- Framework -->
-      <section id="framework">
-        <h2>Framework Overview</h2>
-
-        <h3>3v3 Multi-Drone Volleyball Task</h3>
+      <section id="task">
+        <h2>3v3 Multi-Drone Volleyball Task</h2>
         <p>
-          Our work aims to tackle the <strong>3v3 Multi-Drone Volleyball Task</strong> proposed in <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a> played on a 12m × 6m court with a 2.43m net. Each team controls three quadrotors and must cooperate to return the ball to the opponent's court while following standard volleyball turn-based rules. The task simultaneously demands <em>precise motion control</em> for individual drones and <em>coordinated team strategy</em> for multi-agent decision-making—making it a uniquely challenging benchmark for embodied multi-agent reinforcement learning.
+          Our work aims to tackle the <strong>3v3 Multi-Drone Volleyball Task</strong> proposed in <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a>. The game is played on a 12m × 6m court with a 2.43m net, where each team controls three quadrotors that must cooperate to return the ball to the opponent’s court under standard volleyball turn-based rules. This task jointly requires <strong>precise motion control</strong> at the individual drone level and <strong>coordinated team strategy</strong> for multi-agent decision, making it a particularly challenging benchmark for multi-agent reinforcement learning.
         </p>
         <div class="figure-container">
-          <img src="figs/fig1.png" alt="VolleyBots 3v3 drone volleyball task overview" style="max-width: 80%;">
-          <p class="caption">Figure 1. The <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a> 3v3 competitive task. Three quadrotors per team compete on a 12m × 6m court with a 2.43m net. Green arrows indicate ball trajectories; blue arrows indicate drone trajectories.</p>
+          <img src="figs/fig1.png" alt="VolleyBots 3v3 drone volleyball task overview" style="max-width: 70%;">
+          <p class="caption">Figure 1. The <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a> 3v3 competitive task. Three quadrotors per team compete on a 12m × 6m court with a 2.43m net.</p>
         </div>
+
+      </section>
+
+      <!-- Method -->
+      <section id="method">
+        <h2>Method</h2>
 
         <h3>Hierarchical Co-Self-Play (HCSP) Architecture</h3>
         <p>
@@ -133,11 +147,8 @@
           <img src="figs/fig2.png" alt="HCSP hierarchical framework architecture">
           <p class="caption">Figure 2. The HCSP architecture. An event-based trigger activates the high-level strategy (MLP with multi-head output) which selects skills from the low-level skill pool for each drone. Low-level skills (Serve, Receive, Hover, GoTo, Pass, Set, Attack) execute the assigned primitives and send actions to the drones.</p>
         </div>
-      </section>
 
-      <!-- Training Pipeline -->
-      <section id="training">
-        <h2>Three-Stage Training Pipeline</h2>
+        <h3>Three-Stage Training Pipeline</h3>
         <p>
           HCSP learns entirely from self-play without any expert demonstrations. The training unfolds across three carefully designed stages, each building upon the previous to produce increasingly sophisticated team behaviors.
         </p>
@@ -157,45 +168,38 @@
           </div>
         </div>
 
-        <h3>Stage I: Low-Level Skill Acquisition</h3>
+        <h4>Stage I: Low-Level Skill Acquisition</h4>
         <p>
           We train seven low-level skills using policy chaining, where a new skill policy is initialized from a relevant predecessor skill to facilitate smooth behavioral transitions. Each skill focuses on controlling individual drones to execute specific motion primitives without tactical reasoning. The table below describes each skill and the tactical observations provided by the high-level strategy.
         </p>
         <div class="figure-container">
-          <img src="figs/table1.png" alt="Low-level skill descriptions">
+          <img src="figs/table1.png" alt="Low-level skill descriptions" style="max-width: 90%;">
           <p class="caption">Table 1. Description of seven low-level skills acquired in Stage I and the corresponding tactical observations provided by the high-level strategy.</p>
         </div>
-        <p>
-          Policy chaining significantly improves sample efficiency compared to training skills from scratch (single-policy). As shown below, policy chaining achieves faster convergence and higher asymptotic reward in representative skills.
-        </p>
-        <div class="figure-container">
-          <img src="figs/fig9.png" alt="Training curves for policy chaining vs single-policy">
-          <p class="caption">Figure 3. Training curves for the Attack and Hover skills. Policy chaining (orange) converges faster and achieves higher rewards than the single-policy baseline (blue).</p>
-        </div>
 
-        <h3>Stage II: High-Level Strategy Pretraining</h3>
+        <h4>Stage II: High-Level Strategy Pretraining</h4>
         <p>
           With the low-level skill pool frozen, we pretrain the high-level strategy through population-based team-level self-play. Each team is modeled as a centralized high-level agent selecting skills for all three drones. We maintain a population of strategy policies and use Nash Equilibrium (NE)-based sampling to construct diverse matchups, enabling the strategy to acquire robust cooperative and competitive tactics.
         </p>
         <div class="figure-container">
-          <img src="figs/fig3.png" alt="Population-based training framework for Stage II and III">
-          <p class="caption">Figure 4. Population-based training framework. Teams are sampled via NE-based strategies, and a win rate heatmap is computed for policy population evaluation.</p>
+          <img src="figs/fig3.png" alt="Population-based training framework for Stage II and III" style="max-width: 65%;">
+          <p class="caption">Figure 3. Population-based training framework. Teams are sampled via NE-based strategies, and a win rate heatmap is computed for policy population evaluation.</p>
         </div>
         <p>
           Since the high-level strategy is event-driven, its action steps are temporally sparse. To address the training inefficiency caused by sparse event-driven transitions, we apply <strong>sample reallocation</strong>: transitions are collected across multiple environments but only event-driven timesteps are extracted and batched for training, significantly improving data efficiency.
         </p>
         <div class="figure-container">
-          <img src="figs/fig4.png" alt="Sample reallocation for event-driven RL">
-          <p class="caption">Figure 5. Sample reallocation for high-level strategy training. Event-driven transitions (orange) are collected across environments and repackaged into full training batches.</p>
+          <img src="figs/fig4.png" alt="Sample reallocation for event-driven RL" style="max-width: 75%;">
+          <p class="caption">Figure 4. Sample reallocation for high-level strategy training. Event-driven transitions (orange) are collected across environments and repackaged into full training batches.</p>
         </div>
 
-        <h3>Stage III: Co-Self-Play</h3>
+        <h4>Stage III: Co-Self-Play</h4>
         <p>
           In Stage III, we co-optimize both the high-level strategy and low-level skills through co-self-play. New low-level skill policies are introduced into the skill pool and jointly trained with the high-level strategy. High-level strategies can motivate low-level skill development, and improvements in low-level skills in turn inform better high-level decision-making—creating a virtuous cycle of mutual improvement that leads to emergent team behaviors.
         </p>
         <div class="figure-container">
           <img src="figs/fig5.png" alt="Co-self-play Stage III illustration">
-          <p class="caption">Figure 6. Illustration of the co-self-play stage (Stage III). New low-level policies are introduced to augment the skill pool, while a new high-level strategy is trained from scratch alongside the evolving skill pool.</p>
+          <p class="caption">Figure 5. Illustration of the co-self-play stage (Stage III). New low-level policies are introduced to augment the skill pool, while a new high-level strategy is trained from scratch alongside the evolving skill pool.</p>
         </div>
       </section>
 
@@ -208,141 +212,183 @@
           We evaluate HCSP against five baselines: Self-Play (SP), Fictitious Self-Play (FSP), PSRO<sub>Uniform</sub>, PSRO<sub>Nash</sub>, and a rule-based Bot. HCSP achieves an average win rate of <strong>82.9%</strong>, outperforming all baselines across all matchup types.
         </p>
         <div class="figure-container">
-          <img src="figs/fig6.png" alt="HCSP win rates against baselines">
-          <p class="caption">Figure 7. HCSP win rate against each baseline and the average win rate. The dashed line indicates the 50% (random) threshold.</p>
+          <img src="figs/fig6.png" alt="HCSP win rates against baselines" style="max-width: 50%;">
+          <p class="caption">Figure 6. HCSP win rate against each baseline and the average win rate. The dashed line indicates the 50% (random) threshold.</p>
         </div>
 
-        <h3>Quantitative Analysis of Stage III Co-Self-Play</h3>
+        <h3>Analysis of Stage III Co-Self-Play</h3>
+
+        <h4>Quantitative Analysis</h4>
         <p>
           To evaluate the effectiveness of Stage III, we conduct head-to-head tournaments between Stage II and Stage III policies. The Stage III policy achieves a <strong>71.5% win rate</strong> over the Stage II policy, demonstrating clear improvement from co-self-play. To assess absolute robustness, we also use a Nash-averaging evaluator: the Stage III policy improves its Nash-averaged win rate from 31.4% (Stage II) to <strong>47.6%</strong>, a 16.2% absolute gain.
         </p>
         <div class="figure-container">
-          <img src="figs/table2.png" alt="Stage II vs Stage III win rate comparison">
+          <img src="figs/table2.png" alt="Stage II vs Stage III win rate comparison" style="max-width: 65%;">
           <p class="caption">Table 2. Head-to-head and Nash-averaged win rates of Stage II and Stage III policies (mean ± std).</p>
         </div>
-        <div class="figures-row">
-          <div class="figure-container">
-            <img src="figs/fig10.png" alt="Win rate matrices comparing Stage II and Stage III policies">
-            <p class="caption">Figure 8. Win rate matrices for Stage II policies (left) and Stage III policies (right), showing consistent improvement in Stage III.</p>
-          </div>
-          <div class="figure-container">
-            <img src="figs/fig7.png" alt="Win rate matrix among all candidate policies">
-            <p class="caption">Figure 9. Win rate matrix among all candidate policies (A–J) from the full tournament, visualized as a heatmap.</p>
-          </div>
+        <div class="figure-container">
+          <img src="figs/fig7.png" alt="Win rate matrix among all candidate policies" style="max-width: 40%;">
+          <p class="caption">Figure 7. Win rate matrix among all candidate policies (A–J) from the full tournament, visualized as a heatmap.</p>
         </div>
 
-        <h3>Emergent Low-Level Skills</h3>
+        <h4>Emergent Low-Level Skill</h4>
         <p>
-          Beyond quantitative gains, Stage III co-self-play leads to qualitatively richer behaviors. Low-level skills evolve to execute more complex and coordinated motion primitives, such as front-flip hits and dynamic role switching, which were not present in the Stage II policy. The figure below shows simulation frames of representative emergent behaviors discovered through co-self-play.
+          Beyond quantitative gains, Stage III co-self-play leads to qualitatively richer behaviors. We observe a two-touch maneuver, akin to the real-world volleyball <strong>dump shot</strong>, in which the setter itself redirects the ball over the net instead of raising it for a teammate. 
         </p>
         <div class="figure-container">
-          <img src="figs/fig8.png" alt="Simulation frames showing emergent behaviors">
-          <p class="caption">Figure 10. Simulation frames (a)–(f) showing representative emergent low-level behaviors discovered through co-self-play, including dynamic positional adjustments and complex attack trajectories.</p>
+          <video controls autoplay muted loop playsinline style="max-width: 50%; border-radius: 8px;">
+            <source src="videos/dump_shot.mp4" type="video/mp4">
+          </video>
+          <p class="caption">Video 1. Video illustration of an emergent dump shot behavior discovered through co-self-play. The setter redirects the ball directly over the net instead of raising it for a teammate, scoring a point without a third touch.</p>
         </div>
+
+        <h3>Ablation Study</h3>
+
+        <h4>Policy Chaining</h4>
+        <p>
+          Policy chaining significantly improves sample efficiency compared to training skills from scratch (single-policy). As shown below, policy chaining achieves faster convergence and higher asymptotic reward in representative skills.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig9.png" alt="Training curves for policy chaining vs single-policy" style="max-width: 65%;">
+          <p class="caption">Figure 8. Training curves for the Attack and Hover skills. Policy chaining (orange) converges faster and achieves higher rewards than the single-policy baseline (blue).</p>
+        </div>
+
+        <h4>High-level Strategy Sample Reallocation in Stage II</h4>
+        <p>
+          Since the high-level strategy is event-driven, its action steps are temporally sparse. To address the training inefficiency caused by sparse event-driven transitions, we apply <strong>sample reallocation</strong>: transitions are collected across multiple environments but only event-driven timesteps are extracted and batched for training, significantly improving data efficiency. The figure below validates the effectiveness of this technique.
+        </p>
+        <div class="figure-container">
+          <img src="figs/fig10.png" alt="Sample reallocation ablation for high-level strategy training" style="max-width: 55%;">
+          <p class="caption">Figure 9. Ablation on sample reallocation in Stage II. Sample reallocation (right) achieves significantly faster convergence and higher win rate compared to the baseline without reallocation (left).</p>
+        </div>
+
       </section>
 
       <!-- Videos -->
       <section id="videos">
         <h2>Videos</h2>
         <p>
-          The following videos demonstrate HCSP in action, including a spotlight overview, real-world deployment, and individual low-level skill demonstrations. Click any thumbnail to watch on YouTube.
+          The following videos demonstrate HCSP, including a spotlight overview, real-world deployment, and simulation demonstrations.
         </p>
 
-        <h3>Spotlight</h3>
-        <!-- TODO: Replace VIDEO_ID_SPOTLIGHT with the actual YouTube video ID -->
+        <h3>Spotlight Video</h3>
         <div class="video-grid video-grid-1">
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_SPOTLIGHT" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_SPOTLIGHT/hqdefault.jpg" alt="HCSP Spotlight Video">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
-            <p class="video-caption">HCSP — Spotlight Demo</p>
+            <video controls playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/spotlight_video.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Spotlight Video</p>
           </div>
         </div>
 
         <h3>Real-World Demonstrations</h3>
-        <!-- TODO: Replace VIDEO_ID_REALWORLD_1 and VIDEO_ID_REALWORLD_2 with actual YouTube video IDs -->
         <div class="video-grid video-grid-2">
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_REALWORLD_1" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_REALWORLD_1/hqdefault.jpg" alt="Real-world Solo Bump">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/real_juggle.mp4" type="video/mp4">
+            </video>
             <p class="video-caption">Real-world: Solo Bump</p>
           </div>
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_REALWORLD_2" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_REALWORLD_2/hqdefault.jpg" alt="Real-world Serve">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/real_serve.mp4" type="video/mp4">
+            </video>
             <p class="video-caption">Real-world: Serve</p>
           </div>
         </div>
 
-        <h3>Simulation Skill Demonstrations</h3>
-        <!-- TODO: Replace VIDEO_ID_SIM_* with actual YouTube video IDs -->
+        <h3>Simulation Demonstrations</h3>
+
+        <h4>Stage I: Low-Level Skill Demonstrations</h4>
         <div class="video-grid video-grid-3">
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_SIM_SERVE" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_SERVE/hqdefault.jpg" alt="Simulation: Serve">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/01_serve.mp4" type="video/mp4">
+            </video>
             <p class="video-caption">Serve</p>
           </div>
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_SIM_RECEIVE" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_RECEIVE/hqdefault.jpg" alt="Simulation: Receive">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/02_serve_hover.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Serve → Hover</p>
+          </div>
+          <div class="video-item">
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/03_receive.mp4" type="video/mp4">
+            </video>
             <p class="video-caption">Receive</p>
           </div>
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_SIM_SET" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_SET/hqdefault.jpg" alt="Simulation: Set">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/04_receive_hover.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Receive → Hover</p>
+          </div>
+          <div class="video-item">
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/05_set.mp4" type="video/mp4">
+            </video>
             <p class="video-caption">Set</p>
           </div>
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_SIM_PASS" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_PASS/hqdefault.jpg" alt="Simulation: Pass">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/06_set_hover.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Set → Hover</p>
+          </div>
+          <div class="video-item">
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/07_pass.mp4" type="video/mp4">
+            </video>
             <p class="video-caption">Pass</p>
           </div>
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_SIM_ATTACK" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_ATTACK/hqdefault.jpg" alt="Simulation: Attack">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/08_pass_hover.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Pass → Hover</p>
+          </div>
+          <div class="video-item">
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/09_att.mp4" type="video/mp4">
+            </video>
             <p class="video-caption">Attack</p>
           </div>
           <div class="video-item">
-            <a href="https://youtu.be/VIDEO_ID_SIM_FLIPATTACK" target="_blank" class="yt-link">
-              <div class="yt-thumbnail">
-                <img src="https://img.youtube.com/vi/VIDEO_ID_SIM_FLIPATTACK/hqdefault.jpg" alt="Simulation: Front Flip Hit">
-                <div class="yt-play-btn"><i class="fab fa-youtube"></i></div>
-              </div>
-            </a>
-            <p class="video-caption">Front Flip Hit</p>
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/10_att_hover.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Attack → Hover</p>
+          </div>
+          <div class="video-item">
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage1_LLS_one_episode/11_goto.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">GoTo</p>
           </div>
         </div>
+
+        <h4>Stage II: High-Level Strategy</h4>
+        <div class="video-grid video-grid-1">
+          <div class="video-item">
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage2_HLS.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">High-Level Strategy</p>
+          </div>
+        </div>
+
+        <h4>Stage III: Co-Self-Play</h4>
+        <div class="video-grid video-grid-1">
+          <div class="video-item">
+            <video controls autoplay muted loop playsinline style="width: 100%; border-radius: 8px;">
+              <source src="videos/stage3_co-self-play.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Co-Self-Play</p>
+          </div>
+        </div>
+
       </section>
 
       <!-- BibTeX -->
