@@ -20,7 +20,7 @@
   <nav class="nav-global" id="navGlobal">
     <div class="nav-global-content">
       <div class="nav-global-links">
-        <a href="https://sites.google.com/view/thu-volleybots" target="_blank">VolleyBots</a>
+        <a href="https://volleybots.github.io" target="_blank">VolleyBots</a>
         <a href="#" class="active" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">HCSP</a>
         <a href="https://arxiv.org/pdf/2509.24892" target="_blank">JuggleRL</a>
       </div>
@@ -37,7 +37,7 @@
         </a>
         <div class="nav-dropdown">
           <div class="nav-dropdown-header">Explore Projects</div>
-          <a class="nav-project-card" href="https://sites.google.com/view/thu-volleybots" target="_blank">
+          <a class="nav-project-card" href="https://volleybots.github.io" target="_blank">
             <div class="nav-project-card-title">VolleyBots</div>
             <div class="nav-project-card-desc">A Testbed for Multi-Drone Volleyball Game Combining Motion Control and Strategic Play</div>
           </a>
@@ -126,11 +126,11 @@
       <section id="task">
         <h2>3v3 Multi-Drone Volleyball Task</h2>
         <p>
-          Our work aims to tackle the <strong>3v3 Multi-Drone Volleyball Task</strong> proposed in <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a>. The game is played on a 12m × 6m court with a 2.43m net, where each team controls three quadrotors that must cooperate to return the ball to the opponent’s court under standard volleyball turn-based rules. This task jointly requires <strong>precise motion control</strong> at the individual drone level and <strong>coordinated team strategy</strong> for multi-agent decision, making it a particularly challenging benchmark for multi-agent reinforcement learning.
+          Our work aims to tackle the <strong>3v3 Multi-Drone Volleyball Task</strong> proposed in <a href="https://volleybots.github.io" target="_blank">VolleyBots</a>. The game is played on a 12m × 6m court with a 2.43m net, where each team controls three quadrotors that must cooperate to return the ball to the opponent’s court under standard volleyball turn-based rules. This task jointly requires <strong>precise motion control</strong> at the individual drone level and <strong>coordinated team strategy</strong> for multi-agent decision, making it a particularly challenging benchmark for multi-agent reinforcement learning.
         </p>
         <div class="figure-container">
           <img src="figs/fig1.png" alt="VolleyBots 3v3 drone volleyball task overview" style="max-width: 70%;">
-          <p class="caption">Figure 1. The <a href="https://sites.google.com/thu-volleybots" target="_blank">VolleyBots</a> 3v3 competitive task. Three quadrotors per team compete on a 12m × 6m court with a 2.43m net.</p>
+          <p class="caption">Figure 1. The <a href="https://volleybots.github.io" target="_blank">VolleyBots</a> 3v3 competitive task. Three quadrotors per team compete on a 12m × 6m court with a 2.43m net.</p>
         </div>
 
       </section>
@@ -430,12 +430,12 @@
       var pageHeader  = document.getElementById('page-header');
       var scrollTopBtn = document.getElementById('scrollTop');
       var navTitleWrapper = document.getElementById('navTitleWrapper');
-      var sectionIds  = ['abstract', 'framework', 'training', 'experiments', 'videos', 'bibtex'];
+      var sectionIds  = ['abstract', 'task', 'method', 'experiments', 'videos', 'bibtex'];
 
       // ── Scroll: swap global nav ↔ sticky bar ──
       function updateNav() {
-        var headerBottom = pageHeader ? pageHeader.offsetTop + pageHeader.offsetHeight : 300;
-        if (window.scrollY > headerBottom - 60) {
+        var pastHeader = pageHeader ? pageHeader.getBoundingClientRect().bottom < 60 : window.scrollY > 240;
+        if (pastHeader) {
           navBar.classList.add('visible');
           navGlobal.classList.add('hidden');
         } else {
